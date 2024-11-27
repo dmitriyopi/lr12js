@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style20.css" rel="stylesheet">
+    <link rel="icon" href="learn.jfif" type="image">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let currentPos = 0;
+            let correct = 0;
+            let incorrect = 0;
+            let select = [];
+            leveltxt;
+            const words = {
+                easy: [
+                    { word: "moon", translation: "місяць" },
+                    { word: "light", translation: "світло" },
+                    { word: "cat", translation: "кіт" },
+                    { word: "house", translation: "дім" },
+                    { word: "work", translation: "робота" },
+                    { word: "pen", translation: "ручка" },
+                    { word: "crown", translation: "корона" },
+                    { word: "help", translation: "допомога" },
+                    { word: "programming", translation: "програмування" },
+                    { word: "laptop", translation: "ноутбук" }
+                ],
+                medium: [
+                    { word: "gate", translation: "ворота" },
+                    { word: "flu", translation: "грип" },
+                    { word: "except", translation: "крім" },
+                    { word: "among", translation: "серед" },
+                    { word: "potential", translation: "потенціал" },
+                    { word: "similar", translation: "подібні" },
+                    { word: "crown", translation: "корона" },
+                    { word: "request", translation: "наказ" },
+                    { word: "programming", translation: "програмування" },
+                    { word: "offer", translation: "пропозиція" }
+                ],
+                hard: [
+                    { word: "oath", translation: "клятва" },
+                    { word: "society", translation: "суспільство" },
+                    { word: "several", translation: "декілька" },
+                    { word: "among", translation: "серед" },
+                    { word: "unique", translation: "унікальний" },
+                    { word: "weak", translation: "слабий" },
+                    { word: "shovel", translation: "лопата" },
+                    { word: "towel", translation: "рушник" },
+                    { word: "behave", translation: "вести" }
+                ]
+            };
+
+            function RandomCards(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const randomIndex = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+                }
+                return array;
+            }
+
+            function Card(index) {
+                const cardContainer = $(".card-container");
+                cardContainer.empty();
+                if (index < select.length) {
+                    const word = select[index].word;
+                    const correctTranslation = select[index].translation.toLowerCase();
+                    const card = $(`
+                        <div class="card">
+                            <p>${word}</p>
+                            <input type="text" class="translation-input" placeholder="Введіть переклад">
+                            <button class="check-btn">Перевірити</button>
+                        </div>
+                    `);
+                    card.find(".check-btn").on("click", function () {
+                        const userTranslation = card.find(".translation-input").val().trim().toLowerCase();
+                        if (userTranslation === correctTranslation) {
+                            correct++;
+                            alert("Вірно!");
+                        } else {
+                            incorrect++;
+                            alert(`Невірно, правильний переклад: ${correctTranslation}`);
+                        }
+                        currentPos++;
+                        Update();
+                        Card(currentPos);
+                    });
+
+                    cardContainer.append(card);
+                } else {
+                    showResult();
+                }
+            }
+
+            function Update() {
+                $("#step").text(currentPos + 1);
+                $("#correct").text(correct);
+                $("#incorrect").text(incorrect);
+            }
+
+            function showResult() {
+                const score = Math.round((correct / select.length) * 10);
+                const resultMessage = `
+                    Ви закінчили гру!
+                    Ваш рахунок: ${correct}/${select.length}.
+                    Рівень знань: ${score}/10.
+                `;
+                alert(resultMessage);
+            }
+
+            $(".level-btn").on("click", function () {
+                const level = $(this).data("level");
+                select = RandomCards([...words[level]]); 
+                currentPos = 0;
+                correct = 0;
+                incorrect = 0;
+                $("#total").text(select.length);
+                $("#leveltxt").text($(this).text()); 
+                Update();
+                Card(currentPos);
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1 id="leveltxt"></h1>
+    <h1>Language Learning</h1>
+    <div class="level-buttons">
+        <button class="level-btn" data-level="easy">Легкий</button>
+        <button class="level-btn" data-level="medium">Середній</button>
+        <button class="level-btn" data-level="hard">Складний</button>
+    </div>
+    <div class="status">
+        <p>Крок <span id="step">1</span> із <span id="total">0</span></p>
+        <p>Вірно: <span id="correct">0</span>, Невірно: <span id="incorrect">0</span></p>
+    </div>
+    <div class="card-container"></div>
+</div>
+</body>
+</html>
